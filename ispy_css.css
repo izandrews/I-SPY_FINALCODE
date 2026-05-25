@@ -1,0 +1,213 @@
+@font-face {
+    font-family: Cascadia;
+    src: url(CASCADIACODEPL-SEMIBOLD.OTF);
+}
+
+body {
+    background-color: #0000aa;
+    color: #CCCCCC;
+    --font: Cascadia;
+    font-family: var(--font), monospace;
+
+    margin: 0;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+}
+
+.content {
+    display: grid;
+    place-items: center;
+    gap: 5px 5vw;
+    grid-template-columns: 2fr minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        'map .'
+        'map .'
+        '. .';
+    margin: 0 5vw;
+}
+
+.map {
+    grid-area: map;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 2fr 2fr 0.5fr 1.5fr;
+    grid-template-rows: 3fr 1fr;
+    padding: 5px 0 0 0;
+    place-items: center;
+    border-style: solid;
+    border-width: 5px;
+    height: 500px;
+    width: 800px;
+}
+
+.stairs {
+    grid-column: 3;
+    grid-row: 1;
+    height: auto;
+    width: 100px;
+    justify-self: center;
+    align-self: start;
+    filter: invert(94%) sepia(0%) saturate(682%) hue-rotate(164deg) brightness(95%) contrast(75%);
+}
+
+.person {
+    grid-column: 4;
+    grid-row: 1;
+    height: auto;
+    width: 20px;
+    margin: 20px 10px;
+    justify-self: start;
+    align-self: start;
+    filter: invert(94%) sepia(0%) saturate(682%) hue-rotate(164deg) brightness(95%) contrast(75%);
+}
+
+#mic1,
+#mic2,
+#mic3,
+#mic4,
+#mic5 {
+    border-style: solid;
+    border-width: 5px;
+    border-color: #CCCCCC;
+}
+
+#mic1 {
+    grid-column: 1;
+    grid-row: 1;
+    height: 50px;
+    width: 100px;
+    margin: 15px 15px;
+    justify-self: start;
+    align-self: start;
+}
+
+#mic2 {
+    grid-column: 1;
+    grid-row: 2;
+    height: 60px;
+    width: 100px;
+    margin: 15px 15px;
+    justify-self: start;
+    align-self: end;
+}
+
+#mic3 {
+    grid-column: 2;
+    grid-row: 1;
+    height: 100px;
+    width: 150px;
+    margin: 15px 15px;
+    justify-self: center;
+    align-self: start;
+}
+
+#mic4 {
+    grid-column: 4;
+    grid-row: 2;
+    height: 80px;
+    width: 100px;
+    margin: 15px 15px;
+    justify-self: end;
+    align-self: end;
+}
+
+#mic5 {
+    grid-column: 2;
+    grid-row: 2;
+    height: 70px;
+    width: 120px;
+    margin: 15px 15px;
+    justify-self: center;
+    align-self: end;
+}
+
+#mic1.selected,
+#mic2.selected,
+#mic3.selected,
+#mic4.selected,
+#mic5.selected {
+    border-color: red;
+}
+
+.channel-text {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.channel-text .mic1-selected,
+.channel-text .mic2-selected,
+.channel-text .mic3-selected,
+.channel-text .mic4-selected,
+.channel-text .mic5-selected {
+    display: none;
+}
+
+.channel-text .active-selected {
+    display: block;
+}
+
+.channel-text .nomic-selected.hidden {
+    display: none;
+}
+
+#title {
+    --font: Cascadia;
+    --size: 10;
+    font-family: var(--font), monospace;
+}
+
+.text-box {
+    grid-column: 2;
+    grid-row: 1;
+    border-style: solid;
+    border-width: 5px;
+    justify-self: end;
+
+    height: 250px;
+    max-height: 250px;
+    width: 420px;
+
+    min-width: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.text-stream {
+    padding: 10px 30px;
+
+    height: 100%;
+    max-height: 100%;
+    min-width: 0;
+
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.text-stream .mic1-ts,
+.text-stream .mic2-ts,
+.text-stream .mic3-ts,
+.text-stream .mic4-ts,
+.text-stream .mic5-ts {
+    display: none;
+}
+
+.text-stream .active-transcript {
+    display: block;
+}
+
+.waves {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: end;
+}
+
+#wave-drawing {
+    display: block;
+}
