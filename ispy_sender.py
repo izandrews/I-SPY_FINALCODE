@@ -14,6 +14,7 @@ import time
 import os
 from collections import deque
 
+from fastapi.staticfiles import StaticFiles
 # ============================================================
 # CONFIG
 # ============================================================
@@ -626,14 +627,6 @@ async def wave_ws(websocket: WebSocket):
 # ROUTES
 # ============================================================
 
-@app.get("/")
-async def root():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, "index.html")
-
-    with open(file_path, "r", encoding="utf-8") as f:
-        return HTMLResponse(f.read())
-
 
 @app.get("/test")
 async def test():
@@ -650,6 +643,9 @@ async def test():
         "lcd_baud_rate": BAUD_RATE,
         "audio_playback": "handled by separate relay script",
     }
+    
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
 
 # ============================================================
 # MAIN
