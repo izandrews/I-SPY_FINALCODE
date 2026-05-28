@@ -4,8 +4,8 @@ import socket
 import time
 import gc
 
-WIFI_SSID = "The Burrow"
-WIFI_PASSWORD = "a2b2c3d2e2"
+WIFI_SSID = "UAL-IoT"
+WIFI_PASSWORD = "WRpr4559!@UPNS"
 
 PC_IP = "192.168.68.106"
 PC_PORT = 5006
