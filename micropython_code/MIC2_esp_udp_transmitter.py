@@ -7,8 +7,8 @@ import gc
 WIFI_SSID = "UAL-IoT"
 WIFI_PASSWORD = "WRpr4559!@UPNS"
 
-PC_IP = "192.168.68.106"
-PC_PORT = 5006
+PC_IP = "10.65.100.145"
+PC_PORT = 5006 #mics (1-5) port 5005-5009
 
 # ---------- WiFi ----------
 gc.collect()
