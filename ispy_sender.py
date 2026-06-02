@@ -1,5 +1,4 @@
 from fastapi import FastAPI, WebSocket
-from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -11,10 +10,10 @@ import threading
 import queue
 import numpy as np
 import time
-import os
 from collections import deque
 
 from fastapi.staticfiles import StaticFiles
+
 # ============================================================
 # CONFIG
 # ============================================================
@@ -23,7 +22,6 @@ RELAY_CONTROL_IP = "127.0.0.1"
 RELAY_CONTROL_PORT = 7000
 relay_control_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Main app listens to forwarded audio from relay script
 MIC_PORTS = {
     "MIC1": 6005,
     "MIC2": 6006,
@@ -49,8 +47,11 @@ ATTACK = 0.90
 DECAY = 0.55
 LCD_SEND_INTERVAL = 0.04
 
-WHISPER_MODEL_NAME = "medium" #was tiny
-WHISPER_SILENCE_RMS_THRESHOLD = 0.00025 #was 0.002
+WHISPER_MODEL_NAME = "medium"
+WHISPER_SILENCE_RMS_THRESHOLD = 0.00025
+
+# Match this to WHISPER_GAIN in your relay script
+VISUAL_GAIN_COMPENSATION = 4
 
 # ============================================================
 # STATE
@@ -276,7 +277,6 @@ def serial_channel_reader():
                         except Exception as e:
                             print("[SERIAL PARSE ERROR]", line, e)
 
-                # Fallback: detect C:n even without newline
                 for ch in range(1, 6):
                     token = f"C:{ch}"
                     if token in serial_buffer:
@@ -295,7 +295,7 @@ def serial_channel_reader():
             time.sleep(0.1)
 
 # ============================================================
-# UDP RECEIVER — SELECTED FORWARDED PORT ONLY
+# UDP RECEIVER
 # ============================================================
 
 def open_udp_socket(port):
@@ -303,6 +303,12 @@ def open_udp_socket(port):
     sock.bind(("0.0.0.0", port))
     sock.settimeout(0.2)
     return sock
+
+
+def make_visual_samples(samples):
+    visual_samples = samples.astype(np.float32) / VISUAL_GAIN_COMPENSATION
+    visual_samples = np.clip(visual_samples, -32768, 32767)
+    return visual_samples.astype(np.int16)
 
 
 def udp_receiver_loop():
@@ -359,21 +365,31 @@ def udp_receiver_loop():
 
         packet_count += 1
 
+        visual_samples = make_visual_samples(samples)
+
         now = time.time()
         if now - last_debug > 1:
-            rms_debug = np.sqrt(np.mean(samples.astype(np.float32) ** 2))
+            whisper_rms_debug = np.sqrt(np.mean(samples.astype(np.float32) ** 2))
+            visual_rms_debug = np.sqrt(np.mean(visual_samples.astype(np.float32) ** 2))
+
             print(
                 f"[UDP RX] {mic_id} packets={packet_count} "
-                f"bytes={len(packet)} samples={samples.size} rms={rms_debug:.2f}"
+                f"bytes={len(packet)} samples={samples.size} "
+                f"whisper_rms={whisper_rms_debug:.2f} "
+                f"visual_rms={visual_rms_debug:.2f}"
             )
+
             last_debug = now
 
+        # Keep amplified audio for Whisper
         put_latest_audio(samples)
 
-        for s in samples:
+        # Use de-amplified audio for LCD
+        for s in visual_samples:
             visual_buffer.append(s)
 
-        audio_float = samples.astype(np.float32) / 32768.0
+        # Use de-amplified audio for browser waveform
+        audio_float = visual_samples.astype(np.float32) / 32768.0
         audio_float = audio_float - np.mean(audio_float)
 
         target_points = 128
@@ -461,7 +477,7 @@ def whisper_worker():
                     language="en",
                     task="transcribe",
                     temperature=0,
-                    no_speech_threshold=0.8, #was 0.1
+                    no_speech_threshold=1.0,
                     logprob_threshold=-1.0,
                     condition_on_previous_text=False,
                 )
@@ -627,7 +643,6 @@ async def wave_ws(websocket: WebSocket):
 # ROUTES
 # ============================================================
 
-
 @app.get("/test")
 async def test():
     return {
@@ -641,11 +656,12 @@ async def test():
         "whisper_model": WHISPER_MODEL_NAME,
         "lcd_serial_port": SERIAL_PORT,
         "lcd_baud_rate": BAUD_RATE,
+        "visual_gain_compensation": VISUAL_GAIN_COMPENSATION,
         "audio_playback": "handled by separate relay script",
     }
-    
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
+
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 # ============================================================
 # MAIN
@@ -663,6 +679,7 @@ if __name__ == "__main__":
     print("MIC3 forwarded:", MIC_PORTS["MIC3"])
     print("MIC4 forwarded:", MIC_PORTS["MIC4"])
     print("MIC5 forwarded:", MIC_PORTS["MIC5"])
+    print("Visual gain compensation:", VISUAL_GAIN_COMPENSATION)
     print("=" * 60)
 
     uvicorn.run(app, host="127.0.0.1", port=8000)
