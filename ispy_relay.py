@@ -5,10 +5,6 @@ import threading
 import time
 from collections import deque
 
-# ============================================================
-# CONFIG
-# ============================================================
-
 MIC_RELAY = {
     "MIC1": {"listen_port": 5005, "forward_port": 6005},
     "MIC2": {"listen_port": 5006, "forward_port": 6006},
@@ -31,11 +27,11 @@ BLOCKSIZE = 256
 AUDIO_OUTPUT_DEVICE = None
 MAX_PLAYBACK_BUFFER_SAMPLES = SAMPLE_RATE // 2
 
-PLAYBACK_GAIN = 10 #1
-
-# ============================================================
-# STATE
-# ============================================================
+# Easy volume fixes
+PLAYBACK_GAIN = 8
+AUTO_NORMALIZE = True
+TARGET_PEAK = 28000
+MIN_NORMALIZE_PEAK = 300
 
 selected_mic = "MIC1"
 selected_mic_lock = threading.Lock()
@@ -48,9 +44,6 @@ playback_buffers = {
 buffer_lock = threading.Lock()
 running = True
 
-# ============================================================
-# SELECTED MIC
-# ============================================================
 
 def get_selected_mic():
     with selected_mic_lock:
@@ -67,7 +60,6 @@ def set_selected_mic(mic_id):
     with selected_mic_lock:
         if selected_mic == mic_id:
             return
-
         selected_mic = mic_id
 
     with buffer_lock:
@@ -97,9 +89,6 @@ def control_listener():
             print("[CONTROL ERROR]", e)
             time.sleep(0.1)
 
-# ============================================================
-# AUDIO PLAYBACK
-# ============================================================
 
 def audio_callback(outdata, frames, time_info, status):
     if status:
@@ -115,9 +104,18 @@ def audio_callback(outdata, frames, time_info, status):
             if buf:
                 out[i] = float(buf.popleft())
 
+    # Fixed gain first
     out *= PLAYBACK_GAIN
-    out = np.clip(out, -32768, 32767)
 
+    # Automatic block normalization for quiet mic signal
+    if AUTO_NORMALIZE:
+        peak = np.max(np.abs(out))
+
+        if peak > MIN_NORMALIZE_PEAK:
+            normalize_gain = TARGET_PEAK / peak
+            out *= normalize_gain
+
+    out = np.clip(out, -32768, 32767)
     outdata[:, 0] = out.astype(DTYPE)
 
 
@@ -136,9 +134,6 @@ def add_samples_to_playback(mic_id, samples):
         while len(buf) > MAX_PLAYBACK_BUFFER_SAMPLES:
             buf.popleft()
 
-# ============================================================
-# UDP RELAY
-# ============================================================
 
 def relay_mic(mic_id, listen_port, forward_port):
     recv_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -164,6 +159,7 @@ def relay_mic(mic_id, listen_port, forward_port):
             if samples.size > 0:
                 add_samples_to_playback(mic_id, samples)
 
+            # Forward original clean audio to Whisper server
             send_sock.sendto(packet, (FORWARD_IP, forward_port))
 
             now = time.time()
@@ -175,10 +171,13 @@ def relay_mic(mic_id, listen_port, forward_port):
                     else 0
                 )
 
+                peak = np.max(np.abs(samples)) if samples.size else 0
+
                 print(
                     f"[{mic_id}] packets={packet_count} "
                     f"bytes={len(packet)} samples={samples.size} "
-                    f"rms={rms:.2f} selected={get_selected_mic()}"
+                    f"rms={rms:.2f} peak={peak} "
+                    f"selected={get_selected_mic()}"
                 )
 
                 last_debug = now
@@ -187,9 +186,6 @@ def relay_mic(mic_id, listen_port, forward_port):
             print(f"[{mic_id}] Relay error:", e)
             time.sleep(0.1)
 
-# ============================================================
-# MAIN
-# ============================================================
 
 def main():
     print("\n" + "=" * 60)
@@ -202,6 +198,9 @@ def main():
     print("Control port:", CONTROL_PORT)
     print("Initial selected mic:", selected_mic)
     print("Output device:", AUDIO_OUTPUT_DEVICE if AUDIO_OUTPUT_DEVICE is not None else "system default")
+    print("Playback gain:", PLAYBACK_GAIN)
+    print("Auto normalize:", AUTO_NORMALIZE)
+    print("Target peak:", TARGET_PEAK)
     print("=" * 60)
 
     stream = sd.OutputStream(
@@ -213,6 +212,7 @@ def main():
         device=AUDIO_OUTPUT_DEVICE,
         latency="low",
     )
+
     stream.start()
 
     threading.Thread(target=control_listener, daemon=True).start()
@@ -221,7 +221,7 @@ def main():
         threading.Thread(
             target=relay_mic,
             args=(mic_id, cfg["listen_port"], cfg["forward_port"]),
-            daemon=True
+            daemon=True,
         ).start()
 
     while True:
