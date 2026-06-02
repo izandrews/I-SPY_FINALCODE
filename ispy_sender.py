@@ -483,7 +483,7 @@ def whisper_worker():
                     task="transcribe",
                     temperature=0,
                     no_speech_threshold=0.6,
-                    initial_prompt=WHISPER_CONTEXT_PROMPT,
+                    #initial_prompt=WHISPER_CONTEXT_PROMPT,
                     logprob_threshold=-0.5, #was 1
                     condition_on_previous_text=False,
                 )
