@@ -50,8 +50,8 @@ LCD_SEND_INTERVAL = 0.04
 WHISPER_MODEL_NAME = "medium"
 WHISPER_SILENCE_RMS_THRESHOLD = 0.00025
 
-# Match this to WHISPER_GAIN in your relay script
-VISUAL_GAIN_COMPENSATION = 4
+# Match this to WHISPER_GAIN in relay script
+VISUAL_GAIN_COMPENSATION = 6
 
 # ============================================================
 # STATE

@@ -164,7 +164,7 @@ ws_whisper.onmessage = function(event) {
     }
 
     mic_outputs[micId].innerHTML = mic_lines[micId].join("<br>");
-    resetNoTextTimer(micId);
+    //resetNoTextTimer(micId);
 };
 
 // ============================================================
