@@ -33,6 +33,8 @@ AUTO_NORMALIZE = True
 TARGET_PEAK = 30000
 MIN_NORMALIZE_PEAK = 100
 
+WHISPER_GAIN = 4
+
 selected_mic = "MIC1"
 selected_mic_lock = threading.Lock()
 
@@ -159,8 +161,14 @@ def relay_mic(mic_id, listen_port, forward_port):
             if samples.size > 0:
                 add_samples_to_playback(mic_id, samples)
 
-            # Forward original clean audio to Whisper server
-            send_sock.sendto(packet, (FORWARD_IP, forward_port))
+                whisper_samples = samples.astype(np.int32)
+                whisper_samples *= WHISPER_GAIN
+                whisper_samples = np.clip(whisper_samples, -32768, 32767).astype(np.int16)
+
+                whisper_packet = whisper_samples.tobytes()
+                send_sock.sendto(whisper_packet, (FORWARD_IP, forward_port))
+            else:
+                send_sock.sendto(packet, (FORWARD_IP, forward_port))
 
             now = time.time()
 
