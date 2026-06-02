@@ -51,7 +51,7 @@ WHISPER_MODEL_NAME = "medium"
 WHISPER_SILENCE_RMS_THRESHOLD = 0.00025
 
 # Match this to WHISPER_GAIN in relay script
-VISUAL_GAIN_COMPENSATION = 6
+VISUAL_GAIN_COMPENSATION = 8
 
 # ============================================================
 # STATE
