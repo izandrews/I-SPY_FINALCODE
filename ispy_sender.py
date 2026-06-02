@@ -47,8 +47,13 @@ ATTACK = 0.90
 DECAY = 0.55
 LCD_SEND_INTERVAL = 0.04
 
-WHISPER_MODEL_NAME = "medium"
-WHISPER_SILENCE_RMS_THRESHOLD = 0.00025
+WHISPER_MODEL_NAME = "small"
+WHISPER_SILENCE_RMS_THRESHOLD = 0.0005
+WHISPER_CONTEXT_PROMPT = (
+    "This is live microphone audio from a public installation. "
+    "Transcribe casual short conversations, background speech, and ordinary remarks. "
+    "Do not add offensive language unless it is clearly spoken."
+)
 
 # Match this to WHISPER_GAIN in relay script
 VISUAL_GAIN_COMPENSATION = 8
@@ -477,8 +482,9 @@ def whisper_worker():
                     language="en",
                     task="transcribe",
                     temperature=0,
-                    no_speech_threshold=1.0,
-                    logprob_threshold=-1.0,
+                    no_speech_threshold=0.6,
+                    initial_prompt=WHISPER_CONTEXT_PROMPT,
+                    logprob_threshold=-0.5, #was 1
                     condition_on_previous_text=False,
                 )
 
