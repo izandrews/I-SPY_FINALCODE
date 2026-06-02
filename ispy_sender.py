@@ -49,7 +49,7 @@ ATTACK = 0.90
 DECAY = 0.55
 LCD_SEND_INTERVAL = 0.04
 
-WHISPER_MODEL_NAME = "tiny"
+WHISPER_MODEL_NAME = "small" #was tiny
 WHISPER_SILENCE_RMS_THRESHOLD = 0.002
 
 # ============================================================

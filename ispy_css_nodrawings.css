@@ -32,8 +32,8 @@ body {
     grid-area: map;
     margin: 0;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 2fr 0.5fr 1.5fr;
+    grid-template-rows: 3fr 1fr;
     padding: 5px 0 0 0;
     place-items: center;
     border-style: solid;
@@ -43,7 +43,7 @@ body {
 }
 
 .stairs {
-    grid-column: 5;
+    grid-column: 3;
     grid-row: 1;
     height: auto;
     width: 100px;
@@ -52,69 +52,8 @@ body {
     filter: invert(94%) sepia(0%) saturate(682%) hue-rotate(164deg) brightness(95%) contrast(75%);
 }
 
-.tent {
-    grid-column: 1;
-    grid-row: 1;
-    height: auto;
-    width: 50px;
-    justify-self: start;
-    align-self: start;
-    
-}
-
-.umbrella {
-    grid-column: 1;
-    grid-row: 3;
-    height: auto;
-    width: 50px;
-    justify-self: start;
-    align-self: start;
-    
-}
-
-.eyeball {
-    grid-column: 3;
-    grid-row: 1;
-    height: auto;
-    width: 40px;
-    justify-self: center;
-    align-self: start;
-    
-}
-
-.guitar {
-    grid-column: 2;
-    grid-row: 4;
-    height: auto;
-    width: 60px;
-    justify-self: start;
-    align-self: end;
-    
-}
-
-.wall {
-    grid-column: 3;
-    grid-row: 1;
-    height: auto;
-    width: 3px;
-    justify-self: start;
-    align-self: start;
-    filter: invert(94%) sepia(0%) saturate(682%) hue-rotate(164deg) brightness(95%) contrast(75%);
-    
-}
-
-.pidgeon {
-    grid-column: 7;
-    grid-row: 1;
-    height: auto;
-    width: 60px;
-    justify-self: end;
-    align-self: start;
-    
-}
-
 .person {
-    grid-column: 6;
+    grid-column: 4;
     grid-row: 1;
     height: auto;
     width: 20px;
@@ -122,7 +61,6 @@ body {
     justify-self: start;
     align-self: start;
     filter: invert(94%) sepia(0%) saturate(682%) hue-rotate(164deg) brightness(95%) contrast(75%);
-    
 }
 
 #mic1,
@@ -141,13 +79,13 @@ body {
     height: 50px;
     width: 100px;
     margin: 15px 15px;
-    justify-self: end;
-    align-self: end;
+    justify-self: start;
+    align-self: start;
 }
 
 #mic2 {
     grid-column: 1;
-    grid-row: 4;
+    grid-row: 2;
     height: 60px;
     width: 100px;
     margin: 15px 15px;
@@ -156,18 +94,18 @@ body {
 }
 
 #mic3 {
-    grid-column: 4;
+    grid-column: 2;
     grid-row: 1;
-    height: 80px;
-    width: 100px;
+    height: 100px;
+    width: 150px;
     margin: 15px 15px;
     justify-self: center;
     align-self: start;
 }
 
 #mic4 {
-    grid-column: 7;
-    grid-row: 4;
+    grid-column: 4;
+    grid-row: 2;
     height: 80px;
     width: 100px;
     margin: 15px 15px;
@@ -176,13 +114,13 @@ body {
 }
 
 #mic5 {
-    grid-column: 7;
-    grid-row: 1;
+    grid-column: 2;
+    grid-row: 2;
     height: 70px;
     width: 120px;
     margin: 15px 15px;
     justify-self: center;
-    align-self: center;
+    align-self: end;
 }
 
 #mic1.selected,
