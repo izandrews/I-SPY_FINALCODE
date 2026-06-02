@@ -34,7 +34,7 @@ MIC_PORTS = {
 
 ESP32_SAMPLE_RATE = 8000
 WHISPER_SAMPLE_RATE = 16000
-CHUNK_DURATION = 5
+CHUNK_DURATION = 2
 
 DTYPE = np.int16
 
@@ -50,7 +50,7 @@ DECAY = 0.55
 LCD_SEND_INTERVAL = 0.04
 
 WHISPER_MODEL_NAME = "small" #was tiny
-WHISPER_SILENCE_RMS_THRESHOLD = 0.002
+WHISPER_SILENCE_RMS_THRESHOLD = 0.0005 #was 0.002
 
 # ============================================================
 # STATE
@@ -461,7 +461,7 @@ def whisper_worker():
                     language="en",
                     task="transcribe",
                     temperature=0,
-                    no_speech_threshold=0.1,
+                    no_speech_threshold=0.6, #was 0.1
                     logprob_threshold=-1.0,
                     condition_on_previous_text=False,
                 )
