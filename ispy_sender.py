@@ -56,7 +56,7 @@ WHISPER_CONTEXT_PROMPT = (
 )
 
 # Match this to WHISPER_GAIN in relay script
-VISUAL_GAIN_COMPENSATION = 8
+VISUAL_GAIN_COMPENSATION = 4
 
 # ============================================================
 # STATE
