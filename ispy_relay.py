@@ -33,7 +33,7 @@ AUTO_NORMALIZE = True
 TARGET_PEAK = 22000
 MIN_NORMALIZE_PEAK = 100
 
-WHISPER_GAIN = 4
+WHISPER_GAIN = 0
 
 selected_mic = "MIC1"
 selected_mic_lock = threading.Lock()

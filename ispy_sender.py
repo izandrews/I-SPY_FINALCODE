@@ -56,7 +56,7 @@ WHISPER_CONTEXT_PROMPT = (
 )
 
 # Match this to WHISPER_GAIN in relay script
-VISUAL_GAIN_COMPENSATION = 4
+VISUAL_GAIN_COMPENSATION = 0
 
 # ============================================================
 # STATE
@@ -482,9 +482,9 @@ def whisper_worker():
                     language="en",
                     task="transcribe",
                     temperature=0,
-                    no_speech_threshold=0.6,
+                    no_speech_threshold=0.2,
                     #initial_prompt=WHISPER_CONTEXT_PROMPT,
-                    logprob_threshold=-0.5, #was 1
+                    logprob_threshold=-1, #was 1
                     condition_on_previous_text=False,
                 )
 
